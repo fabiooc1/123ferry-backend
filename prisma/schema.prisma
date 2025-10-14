@@ -32,9 +32,9 @@ model Usuario {
   id                 BigInt   @id @default(autoincrement())
   nomeCompleto       String   @db.VarChar(100)
   email              String   @unique @db.VarChar(255)
-  cpf                String   @unique @db.Char(11)
+  cpf                String   @unique @db.Char(14)
   dataNascimento     DateTime @db.Date
-  senhaCriptografada String
+  senhaCriptografada String   @db.VarChar(255)
 
   registradoEm DateTime @default(now())
   atualizadoEm DateTime @updatedAt
