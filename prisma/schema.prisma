@@ -1,0 +1,199 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PerfilTypes {
+  CLIENTE
+  ATENDENTE
+  ADMINISTRADOR
+}
+
+model Perfil {
+  id       BigInt      @id @default(autoincrement())
+  nome     PerfilTypes @default(CLIENTE)
+  usuarios Usuario[]
+
+  @@map("perfils")
+}
+
+model Usuario {
+  id             BigInt   @id @default(autoincrement())
+  nomeCompleto   String   @db.VarChar(100)
+  email          String   @unique @db.VarChar(255)
+  cpf            String   @unique @db.Char(11)
+  dataNascimento DateTime @db.Date
+  passwordHash   String
+
+  registradoEm DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  perfilId BigInt
+  perfil   Perfil @relation(fields: [perfilId], references: [id])
+
+  viagensCriadas     Viagem[]
+  passagensCompradas Passagem[] @relation("adquiridaPor")
+  passagensAuditadas Passagem[] @relation("auditadaPor")
+
+  @@index([nomeCompleto])
+  @@map("usuarios")
+}
+
+model Ferry {
+  id                   BigInt  @id @default(autoincrement())
+  nome                 String  @unique @db.VarChar(100)
+  maximoDePessoas      Int
+  maximoDeVeiculosEmM2 Decimal @db.Decimal(10, 2)
+
+  registradoEm DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  Viagens      Viagem[]
+
+  @@index([nome])
+  @@map("ferrys")
+}
+
+model Porto {
+  id   BigInt @id @default(autoincrement())
+  nome String @unique @db.VarChar(100)
+
+  rotasOrigem  Rota[] @relation("rotasOrigem")
+  rotasDestino Rota[] @relation("rotasDestino")
+
+  @@index([nome])
+  @@map("portos")
+}
+
+model Rota {
+  id BigInt @id @default(autoincrement())
+
+  origemId BigInt
+  origem   Porto  @relation(name: "rotasOrigem", fields: [origemId], references: [id])
+
+  destinoId BigInt
+  destino   Porto  @relation(name: "rotasDestino", fields: [destinoId], references: [id])
+
+  viagens Viagem[]
+
+  @@index([origemId, destinoId])
+  @@map("rotas")
+}
+
+model Viagem {
+  id BigInt @id @default(autoincrement())
+
+  ferryId BigInt
+  ferry   Ferry  @relation(fields: [ferryId], references: [id])
+
+  rotaId BigInt
+  rota   Rota   @relation(fields: [rotaId], references: [id])
+
+  dataPartida DateTime
+  dataChegada DateTime
+
+  criadaPorId BigInt
+  criadaPor   Usuario  @relation(fields: [criadaPorId], references: [id])
+  criadaEm    DateTime @default(now())
+
+  passagens Passagem[]
+
+  @@index([ferryId, rotaId, dataPartida, dataChegada])
+  @@map("viagens")
+}
+
+enum PassagemStatus {
+  RESERVADA
+  PAGA
+  CANCELADA
+}
+
+model Passagem {
+  id     BigInt         @id @default(autoincrement())
+  codigo String         @unique @db.VarChar(255)
+  status PassagemStatus @default(RESERVADA)
+
+  adquiridaPorId BigInt
+  adquiridaPor   Usuario @relation(name: "adquiridaPor", fields: [adquiridaPorId], references: [id])
+
+  viagemId BigInt
+  viagem   Viagem @relation(fields: [viagemId], references: [id])
+
+  reservadaEm DateTime  @default(now())
+  pagaEm      DateTime?
+  canceladaEm DateTime?
+
+  auditadaPorId BigInt?
+  auditadaPor   Usuario? @relation(name: "auditadaPor", fields: [auditadaPorId], references: [id])
+
+  passageiros PassagemPassageiro[]
+  veiculos    PassagemVeiculo[]
+
+  @@index([adquiridaPorId, viagemId])
+  @@map("passagens")
+}
+
+model TipoPassageiro {
+  id              BigInt               @id @default(autoincrement())
+  nome            String               @unique @db.VarChar(100)
+  precoEmCentavos BigInt
+  passageiros     PassagemPassageiro[]
+
+  @@index([nome])
+  @@map("tipos_passageiro")
+}
+
+model PassagemPassageiro {
+  id BigInt @id @default(autoincrement())
+
+  tipoId BigInt
+  tipo   TipoPassageiro @relation(fields: [tipoId], references: [id])
+
+  passagemId BigInt
+  passagem   Passagem @relation(fields: [passagemId], references: [id])
+
+  nomeCompleto   String   @db.VarChar(100)
+  cpf            String   @db.Char(11)
+  dataNascimento DateTime @db.Date
+
+  valorPagoEmCentavos BigInt
+
+  @@index([tipoId, passagemId, nomeCompleto, cpf])
+  @@map("passagem_passageiros")
+}
+
+model Veiculo {
+  id                      BigInt  @id @default(autoincrement())
+  nome                    String  @unique @db.VarChar(100)
+  tamanhoEmM2             Decimal @db.Decimal(10, 2)
+  precoPassagemEmCentavos BigInt
+
+  passagens PassagemVeiculo[]
+
+  @@index([nome])
+  @@map("veiculos")
+}
+
+model PassagemVeiculo {
+  id BigInt @id @default(autoincrement())
+
+  placa      String @unique @db.VarChar(10)
+  passagemId BigInt
+  veiculoId  BigInt
+
+  passagem Passagem @relation(fields: [passagemId], references: [id])
+  veiculo  Veiculo  @relation(fields: [veiculoId], references: [id])
+
+  @@index([passagemId, veiculoId])
+  @@map("passagem_veiculos")
+}
