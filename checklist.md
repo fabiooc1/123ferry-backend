@@ -10,11 +10,11 @@
  - [ ] Desativar Conta (admin): DELETE /admin/usuario/:id
 
 - FERRY
- - [ ] Cadastrar Novo Ferry: POST /admin/ferr
- - [ ] Atualizar Informações: PUT /admin/ferry/:id
- - [ ] Desativar: DELETE /admin/ferry/:id
- - [ ] Listar Todos (Paginado): GET /ferry
- - [ ] Buscar por ID: GET /ferry/:id
+ - [x] Cadastrar Novo Ferry: POST /admin/ferr
+ - [x] Atualizar Informações: PUT /admin/ferry/:id
+ - [] Desativar: DELETE /admin/ferry/:id (Implementacao futura)
+ - [x] Listar Todos (Paginado): GET /ferry
+ - [x] Buscar por ID: GET /ferry/:id
 
 - PORTO
  - [ ] Cadastrar Novo Porto: POST /admin/porto
