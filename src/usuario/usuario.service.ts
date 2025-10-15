@@ -50,4 +50,39 @@ export class UsuarioService {
 
     return user;
   }
+
+  async findByLogin(login: string) {
+    const user = await this.prisma.usuario.findFirst({
+      where: {
+        OR: [{ email: login }, { cpf: login }],
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('Credenciais inválidas', HttpStatus.UNAUTHORIZED);
+    }
+
+    return user;
+  }
+
+  async findById(userId: bigint) {
+    const user = await this.prisma.usuario.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        perfil: true,
+      },
+      omit: {
+        perfilId: true,
+        senhaCriptografada: true,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('Usuario nao encontrado', HttpStatus.NOT_FOUND);
+    }
+
+    return user;
+  }
 }
