@@ -3,6 +3,7 @@ import { UserPayload } from './interfaces/user-payload.interface';
 import { Reflector } from '@nestjs/core';
 import { PerfilEnum } from './enums/perfil.enum';
 import { PERFIS_KEY } from './decorators/perfis.decorator';
+import { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 
 @Injectable()
 export class PerfisGuard implements CanActivate {
@@ -18,12 +19,10 @@ export class PerfisGuard implements CanActivate {
       return true;
     }
 
-    const request = context.switchToHttp().getRequest();
+    const request: RequestWithUser = context.switchToHttp().getRequest();
     const user: UserPayload = request.user;
-    const userPerfilIdNumerico = Number(user.perfilId);
+    const perfil = user.perfil;
 
-    return requiredPerfis.some(
-      (requiredId) => requiredId === userPerfilIdNumerico,
-    );
+    return requiredPerfis.some((requiredPerfil) => requiredPerfil === perfil);
   }
 }

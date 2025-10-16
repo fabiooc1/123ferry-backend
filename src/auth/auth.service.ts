@@ -4,6 +4,7 @@ import { compare } from 'bcrypt';
 import { type LoginDtoType } from 'src/usuario/dto/login-usuario.dto';
 import { UsuarioService } from 'src/usuario/usuario.service';
 import { UserPayload } from './interfaces/user-payload.interface';
+import { PerfilEnum } from './enums/perfil.enum';
 
 @Injectable()
 export class AuthService {
@@ -23,10 +24,12 @@ export class AuthService {
       );
     }
 
+    const userPerfil = user.perfilId as PerfilEnum;
+
     const payload: UserPayload = {
       sub: String(user.id),
       email: user.email,
-      perfilId: String(user.perfilId),
+      perfil: userPerfil,
     };
 
     return {
