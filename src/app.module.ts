@@ -1,6 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { UsuarioModule } from './usuario/usuario.module';
 import { DatabaseModule } from './database/database.module';
 import { SeedDatabase } from './database/seed';
@@ -24,7 +22,7 @@ import { ViagemModule } from './viagem/viagem.module';
     RotaModule,
     ViagemModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, SeedDatabase, FerryModule],
+  controllers: [],
+  providers: [SeedDatabase],
 })
 export class AppModule {}
