@@ -17,9 +17,9 @@ CREATE TABLE "usuarios" (
     "id" BIGSERIAL NOT NULL,
     "nomeCompleto" VARCHAR(100) NOT NULL,
     "email" VARCHAR(255) NOT NULL,
-    "cpf" CHAR(11) NOT NULL,
+    "cpf" CHAR(14) NOT NULL,
     "dataNascimento" DATE NOT NULL,
-    "senhaCriptografada" TEXT NOT NULL,
+    "senhaCriptografada" VARCHAR(255) NOT NULL,
     "registradoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "atualizadoEm" TIMESTAMP(3) NOT NULL,
     "perfilId" BIGINT NOT NULL,
@@ -65,6 +65,7 @@ CREATE TABLE "viagens" (
     "dataChegada" TIMESTAMP(3) NOT NULL,
     "criadaPorId" BIGINT NOT NULL,
     "criadaEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "atualizadaEm" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "viagens_pkey" PRIMARY KEY ("id")
 );
