@@ -80,15 +80,14 @@ export class RotaService {
   }
 
   async update(rotaId: bigint, updateRotaDto: UpdateRotaDto) {
-    const rote = await this.findById(rotaId);
-    const dataToUpdate: { origemId?: bigint; destinoId?: bigint } = {};
-
     if (Object.keys(updateRotaDto).length === 0) {
       throw new HttpException(
         'Nenhum dado de atualização fornecido',
         HttpStatus.BAD_REQUEST,
       );
     }
+
+    const rote = await this.findById(rotaId);
 
     if (updateRotaDto.origemId) {
       if (!(await this.portoService.existById(updateRotaDto.origemId))) {
@@ -104,8 +103,6 @@ export class RotaService {
           HttpStatus.NOT_FOUND,
         );
       }
-
-      dataToUpdate.origemId = updateRotaDto.origemId;
     }
 
     if (updateRotaDto.destinoId) {
@@ -122,13 +119,11 @@ export class RotaService {
           HttpStatus.CONFLICT,
         );
       }
-
-      dataToUpdate.destinoId = updateRotaDto.destinoId;
     }
 
     const newData = {
       ...rote,
-      ...dataToUpdate,
+      ...updateRotaDto,
     };
 
     if (
