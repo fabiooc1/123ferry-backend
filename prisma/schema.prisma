@@ -21,7 +21,7 @@ enum PerfilTypes {
 }
 
 model Perfil {
-  id       BigInt      @id @default(autoincrement())
+  id       Int         @id @default(autoincrement())
   nome     PerfilTypes @default(CLIENTE)
   usuarios Usuario[]
 
@@ -39,7 +39,7 @@ model Usuario {
   registradoEm DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 
-  perfilId BigInt
+  perfilId Int
   perfil   Perfil @relation(fields: [perfilId], references: [id])
 
   viagensCriadas     Viagem[]

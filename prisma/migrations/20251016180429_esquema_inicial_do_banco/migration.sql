@@ -6,7 +6,7 @@ CREATE TYPE "PassagemStatus" AS ENUM ('RESERVADA', 'PAGA', 'CANCELADA');
 
 -- CreateTable
 CREATE TABLE "perfils" (
-    "id" BIGSERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "nome" "PerfilTypes" NOT NULL DEFAULT 'CLIENTE',
 
     CONSTRAINT "perfils_pkey" PRIMARY KEY ("id")
@@ -22,7 +22,7 @@ CREATE TABLE "usuarios" (
     "senhaCriptografada" VARCHAR(255) NOT NULL,
     "registradoEm" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "atualizadoEm" TIMESTAMP(3) NOT NULL,
-    "perfilId" BIGINT NOT NULL,
+    "perfilId" INTEGER NOT NULL,
 
     CONSTRAINT "usuarios_pkey" PRIMARY KEY ("id")
 );
