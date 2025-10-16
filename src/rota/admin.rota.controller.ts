@@ -6,7 +6,6 @@ import {
   Post,
   Put,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
 import { RotaService } from './rota.service';
 import { ZodValidationPipe } from 'src/pipes/zod.validation.pipe';
@@ -24,16 +23,16 @@ export class AdminRotaController {
   constructor(private readonly rotaService: RotaService) {}
 
   @Post()
-  @UsePipes(new ZodValidationPipe(createRotaSchema))
-  async create(@Body() createRotaDto: CreateRotaDto) {
+  async create(
+    @Body(new ZodValidationPipe(createRotaSchema)) createRotaDto: CreateRotaDto,
+  ) {
     return this.rotaService.create(createRotaDto);
   }
 
   @Put(':rotaId')
-  @UsePipes(new ZodValidationPipe(updateRotaSchema))
   async update(
     @Param('rotaId', ParseIntPipe) rotaId: bigint,
-    @Body() updateRotaDto: UpdateRotaDto,
+    @Body(new ZodValidationPipe(updateRotaSchema)) updateRotaDto: UpdateRotaDto,
   ) {
     return this.rotaService.update(rotaId, updateRotaDto);
   }

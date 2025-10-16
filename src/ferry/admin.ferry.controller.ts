@@ -6,7 +6,6 @@ import {
   Post,
   Put,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
 import { FerryService } from './ferry.service';
 import { AuthGuard } from 'src/auth/auth.guard';
@@ -30,16 +29,18 @@ export class AdminFerryController {
   constructor(private readonly ferryService: FerryService) {}
 
   @Post()
-  @UsePipes(new ZodValidationPipe(createFerrySchema))
-  async create(@Body() createFerryDto: CreateFerryDto) {
+  async create(
+    @Body(new ZodValidationPipe(createFerrySchema))
+    createFerryDto: CreateFerryDto,
+  ) {
     return this.ferryService.create(createFerryDto);
   }
 
   @Put(':ferryId')
-  @UsePipes(new ZodValidationPipe(updateFerrySchema))
   async update(
     @Param('ferryId', ParseIntPipe) ferryId: bigint,
-    @Body() updateFerryDto: UpdateFerryDto,
+    @Body(new ZodValidationPipe(updateFerrySchema))
+    updateFerryDto: UpdateFerryDto,
   ) {
     return this.ferryService.update(ferryId, updateFerryDto);
   }

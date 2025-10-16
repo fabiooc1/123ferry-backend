@@ -6,7 +6,6 @@ import {
   Post,
   Put,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { PerfisGuard } from 'src/auth/auth.perfils.guard';
@@ -30,16 +29,18 @@ export class AdminPortoController {
   constructor(private readonly portoService: PortoService) {}
 
   @Post()
-  @UsePipes(new ZodValidationPipe(createPortoSchema))
-  async create(@Body() createPortoDto: CreatePortoDto) {
+  async create(
+    @Body(new ZodValidationPipe(createPortoSchema))
+    createPortoDto: CreatePortoDto,
+  ) {
     return this.portoService.create(createPortoDto);
   }
 
   @Put(':portoId')
-  @UsePipes(new ZodValidationPipe(updatePortoSchema))
   async update(
     @Param('portoId', ParseIntPipe) portoId: bigint,
-    @Body() updatePortoDto: UpdatePortoDto,
+    @Body(new ZodValidationPipe(updatePortoSchema))
+    updatePortoDto: UpdatePortoDto,
   ) {
     return this.portoService.update(portoId, updatePortoDto);
   }
