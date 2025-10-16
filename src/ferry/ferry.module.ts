@@ -8,5 +8,6 @@ import { DatabaseModule } from 'src/database/database.module';
   controllers: [AdminFerryController, FerryController],
   providers: [FerryService],
   imports: [DatabaseModule],
+  exports: [FerryService],
 })
 export class FerryModule {}
