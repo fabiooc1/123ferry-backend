@@ -23,11 +23,11 @@
  - [x] Buscar por ID: GET /porto/:id
 
 - ROTA
- - [ ] Cadastrar Nova Rota: POST /admin/rota
- - [ ] Atualizar Rota: PUT /admin/rota/:id
+ - [x] Cadastrar Nova Rota: POST /admin/rota
+ - [x] Atualizar Rota: PUT /admin/rota/:id
  - [ ] Deletar Rota: DELETE /admin/rota/:id
- - [ ] Listar Rotas (Paginado): GET /rota
- - [ ] Buscar por ID: GET /rota/:id
+ - [x] Listar Rotas (Paginado): GET /rota
+ - [x] Buscar por ID: GET /rota/:id
 
 - VIAGEM
  - [ ] Cadastrar Nova Viagem: POST /admin/viagem
