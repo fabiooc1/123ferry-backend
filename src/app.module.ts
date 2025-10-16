@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { FerryModule } from './ferry/ferry.module';
 import { PortoModule } from './porto/porto.module';
+import { RotaModule } from './rota/rota.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { PortoModule } from './porto/porto.module';
     AuthModule,
     FerryModule,
     PortoModule,
+    RotaModule,
   ],
   controllers: [AppController],
   providers: [AppService, SeedDatabase, FerryModule],
