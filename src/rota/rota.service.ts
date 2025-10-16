@@ -12,6 +12,13 @@ export class RotaService {
   ) {}
 
   async create(createRotaDto: CreateRotaDto) {
+    if (await this.existByName(createRotaDto.nome)) {
+      throw new HttpException(
+        'Já possui uma rota com esse nome',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     if (createRotaDto.origemId === createRotaDto.destinoId) {
       throw new HttpException(
         'A origem e destino não pode ser iguais',
@@ -77,6 +84,19 @@ export class RotaService {
     });
 
     return rote != null;
+  }
+
+  async existByName(name: string) {
+    const route = await this.prisma.rota.findFirst({
+      where: {
+        nome: name,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return route != null;
   }
 
   async update(rotaId: bigint, updateRotaDto: UpdateRotaDto) {
