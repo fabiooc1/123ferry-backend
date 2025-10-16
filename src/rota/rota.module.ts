@@ -9,5 +9,6 @@ import { AdminRotaController } from './admin.rota.controller';
   controllers: [RotaController, AdminRotaController],
   providers: [RotaService],
   imports: [DatabaseModule, PortoModule],
+  exports: [RotaService],
 })
 export class RotaModule {}
