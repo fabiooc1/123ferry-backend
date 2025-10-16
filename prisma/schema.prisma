@@ -102,9 +102,10 @@ model Viagem {
   dataPartida DateTime
   dataChegada DateTime
 
-  criadaPorId BigInt
-  criadaPor   Usuario  @relation(fields: [criadaPorId], references: [id])
-  criadaEm    DateTime @default(now())
+  criadaPorId  BigInt
+  criadaPor    Usuario  @relation(fields: [criadaPorId], references: [id])
+  criadaEm     DateTime @default(now())
+  atualizadaEm DateTime @updatedAt
 
   passagens Passagem[]
 
