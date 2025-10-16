@@ -109,6 +109,15 @@ export class RotaService {
 
     const rote = await this.findById(rotaId);
 
+    if (updateRotaDto.nome) {
+      if (await this.existByName(updateRotaDto.nome)) {
+        throw new HttpException(
+          'Já possui uma rota com esse nome',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
     if (updateRotaDto.origemId) {
       if (!(await this.portoService.existById(updateRotaDto.origemId))) {
         throw new HttpException(
