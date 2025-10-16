@@ -8,5 +8,6 @@ import { AdminPortoController } from './admin.porto.controller';
   controllers: [AdminPortoController, PortoController],
   providers: [PortoService],
   imports: [DatabaseModule],
+  exports: [PortoService],
 })
 export class PortoModule {}
