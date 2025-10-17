@@ -10,5 +10,6 @@ import { RotaModule } from 'src/rota/rota.module';
   controllers: [AdminViagemController, ViagemController],
   providers: [ViagemService],
   imports: [DatabaseModule, FerryModule, RotaModule],
+  exports: [ViagemService],
 })
 export class ViagemModule {}
