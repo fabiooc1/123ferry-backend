@@ -50,6 +50,7 @@ CREATE TABLE "portos" (
 -- CreateTable
 CREATE TABLE "rotas" (
     "id" BIGSERIAL NOT NULL,
+    "nome" VARCHAR(100) NOT NULL,
     "origemId" BIGINT NOT NULL,
     "destinoId" BIGINT NOT NULL,
 
@@ -87,7 +88,7 @@ CREATE TABLE "passagens" (
 
 -- CreateTable
 CREATE TABLE "tipos_passageiro" (
-    "id" BIGSERIAL NOT NULL,
+    "id" SERIAL NOT NULL,
     "nome" VARCHAR(100) NOT NULL,
     "precoEmCentavos" BIGINT NOT NULL,
 
@@ -97,12 +98,12 @@ CREATE TABLE "tipos_passageiro" (
 -- CreateTable
 CREATE TABLE "passagem_passageiros" (
     "id" BIGSERIAL NOT NULL,
-    "tipoId" BIGINT NOT NULL,
+    "tipoId" INTEGER NOT NULL,
     "passagemId" BIGINT NOT NULL,
     "nomeCompleto" VARCHAR(100) NOT NULL,
-    "cpf" CHAR(11) NOT NULL,
+    "cpf" CHAR(14) NOT NULL,
     "dataNascimento" DATE NOT NULL,
-    "valorPagoEmCentavos" BIGINT NOT NULL,
+    "valorPagoEmCentavos" BIGINT,
 
     CONSTRAINT "passagem_passageiros_pkey" PRIMARY KEY ("id")
 );
@@ -149,7 +150,10 @@ CREATE UNIQUE INDEX "portos_nome_key" ON "portos"("nome");
 CREATE INDEX "portos_nome_idx" ON "portos"("nome");
 
 -- CreateIndex
-CREATE INDEX "rotas_origemId_destinoId_idx" ON "rotas"("origemId", "destinoId");
+CREATE UNIQUE INDEX "rotas_nome_key" ON "rotas"("nome");
+
+-- CreateIndex
+CREATE INDEX "rotas_nome_origemId_destinoId_idx" ON "rotas"("nome", "origemId", "destinoId");
 
 -- CreateIndex
 CREATE INDEX "viagens_ferryId_rotaId_dataPartida_dataChegada_idx" ON "viagens"("ferryId", "rotaId", "dataPartida", "dataChegada");
@@ -174,9 +178,6 @@ CREATE UNIQUE INDEX "veiculos_nome_key" ON "veiculos"("nome");
 
 -- CreateIndex
 CREATE INDEX "veiculos_nome_idx" ON "veiculos"("nome");
-
--- CreateIndex
-CREATE UNIQUE INDEX "passagem_veiculos_placa_key" ON "passagem_veiculos"("placa");
 
 -- CreateIndex
 CREATE INDEX "passagem_veiculos_passagemId_veiculoId_idx" ON "passagem_veiculos"("passagemId", "veiculoId");
