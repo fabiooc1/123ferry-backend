@@ -30,10 +30,10 @@
  - [x] Buscar por ID: GET /rota/:id
 
 - VIAGEM
- - [ ] Cadastrar Nova Viagem: POST /admin/viagem
- - [ ] Atualizar Viagem: PUT /admin/viagem/:id
- - [ ] Listar Viagens Disponíveis com filtros: GET /viagem
- - [ ] Buscar por ID (Detalhes): GET /viagem/:id
+ - [x] Cadastrar Nova Viagem: POST /admin/viagem
+ - [x] Atualizar Viagem: PUT /admin/viagem/:id
+ - [x] Listar Viagens Disponíveis com filtros: GET /viagem
+ - [x] Buscar por ID (Detalhes): GET /viagem/:id
  - [ ] Desativar: DELETE /admin/viagem/:id
 
 - PASSAGEM
@@ -42,4 +42,4 @@
  - [ ] Cancelar Passagem: PUT /passagem/:codigo/cancelar
  - [ ] Ver Passagem por Código: GET /admin/passagem/:codigo
  - [ ] Auditar Passagem: PUT /admin/passagem/:codigo/auditar
- - [ ] Cancelar Passagem: PUT /admin/passagem/:codigo/cancelar
+ - [ ] Cancelar Passagem: PATCH /admin/passagem/:codigo/cancelar
