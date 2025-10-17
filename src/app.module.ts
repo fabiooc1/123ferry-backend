@@ -8,6 +8,9 @@ import { FerryModule } from './ferry/ferry.module';
 import { PortoModule } from './porto/porto.module';
 import { RotaModule } from './rota/rota.module';
 import { ViagemModule } from './viagem/viagem.module';
+import { PassagemModule } from './passagem/passagem.module';
+import { TipoPassageiroModule } from './tipo-passageiro/tipo-passageiro.module';
+import { VeiculoModule } from './veiculo/veiculo.module';
 
 @Module({
   imports: [
@@ -21,6 +24,9 @@ import { ViagemModule } from './viagem/viagem.module';
     PortoModule,
     RotaModule,
     ViagemModule,
+    PassagemModule,
+    TipoPassageiroModule,
+    VeiculoModule,
   ],
   controllers: [],
   providers: [SeedDatabase],
