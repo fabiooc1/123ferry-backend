@@ -48,6 +48,10 @@ export class ViagemService {
       where: {
         id: viagemId,
       },
+      include: {
+        ferry: true,
+        rota: true,
+      },
     });
 
     if (!viagem) {
@@ -154,5 +158,55 @@ export class ViagemService {
         totalPaginas: Math.ceil(total / pageSize),
       },
     };
+  }
+
+  async existById(viagemId: bigint) {
+    const viagem = await this.prisma.viagem.findFirst({
+      where: {
+        id: viagemId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return viagem != null;
+  }
+
+  async isAvaliableShellPassagem(
+    viagemId: bigint,
+    amountNewPassageiros: number,
+  ): Promise<boolean> {
+    const viagem = await this.prisma.viagem.findUniqueOrThrow({
+      where: {
+        id: viagemId,
+      },
+      select: {
+        ferry: {
+          select: {
+            maximoDePessoas: true,
+          },
+        },
+      },
+    });
+
+    const maximoDePessoas = viagem.ferry.maximoDePessoas;
+    const currentAmountPassageiros = await this.prisma.passagemPassageiro.count(
+      {
+        where: {
+          passagem: {
+            viagemId,
+            status: {
+              not: 'CANCELADA',
+            },
+          },
+        },
+      },
+    );
+
+    const totalPassageirosAposReserva =
+      currentAmountPassageiros + amountNewPassageiros;
+
+    return totalPassageirosAposReserva <= maximoDePessoas;
   }
 }
