@@ -6,9 +6,10 @@ import { TipoPassageiroModule } from 'src/tipo-passageiro/tipo-passageiro.module
 import { VeiculoModule } from 'src/veiculo/veiculo.module';
 import { ViagemModule } from 'src/viagem/viagem.module';
 import { UsuarioModule } from 'src/usuario/usuario.module';
+import { AdminPassagemController } from './admin.passagem.controller';
 
 @Module({
-  controllers: [PassagemController],
+  controllers: [AdminPassagemController, PassagemController],
   providers: [PassagemService],
   imports: [
     DatabaseModule,
