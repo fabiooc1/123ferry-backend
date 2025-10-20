@@ -168,7 +168,7 @@ model PassagemPassageiro {
   cpf            String   @db.Char(14)
   dataNascimento DateTime @db.Date
 
-  valorPagoEmCentavos BigInt?
+  precoPagoEmCentavos BigInt?
 
   @@index([tipoId, passagemId, nomeCompleto, cpf])
   @@map("passagem_passageiros")
@@ -189,9 +189,10 @@ model Veiculo {
 model PassagemVeiculo {
   id BigInt @id @default(autoincrement())
 
-  placa      String @db.VarChar(10)
-  passagemId BigInt
-  veiculoId  BigInt
+  placa               String  @db.VarChar(10)
+  passagemId          BigInt
+  veiculoId           BigInt
+  precoPagoEmCentavos BigInt?
 
   passagem Passagem @relation(fields: [passagemId], references: [id])
   veiculo  Veiculo  @relation(fields: [veiculoId], references: [id])
