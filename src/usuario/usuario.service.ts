@@ -85,4 +85,25 @@ export class UsuarioService {
 
     return user;
   }
+
+  async isAdmin(userId: bigint) {
+    try {
+      const usuario = await this.prisma.usuario.findUniqueOrThrow({
+        where: {
+          id: userId,
+        },
+        select: {
+          perfil: {
+            select: {
+              nome: true,
+            },
+          },
+        },
+      });
+
+      return usuario.perfil.nome === 'ADMINISTRADOR';
+    } catch {
+      throw new HttpException('Usuário não encontrado', HttpStatus.NOT_FOUND);
+    }
+  }
 }

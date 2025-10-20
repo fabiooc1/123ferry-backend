@@ -7,6 +7,7 @@ import { ViagemService } from 'src/viagem/viagem.service';
 import { VeiculoService } from 'src/veiculo/veiculo.service';
 import { PassagemVeiculoDto } from './dtos/passagem-veiculo.schema';
 import { randomUUID } from 'node:crypto';
+import { UsuarioService } from 'src/usuario/usuario.service';
 
 @Injectable()
 export class PassagemService {
@@ -15,6 +16,7 @@ export class PassagemService {
     private tipoPassageiroService: TipoPassageiroService,
     private viagemService: ViagemService,
     private veiculoService: VeiculoService,
+    private usuarioService: UsuarioService,
   ) {}
 
   async create(userId: bigint, createPassagemDto: CreatePassagemDto) {
@@ -114,6 +116,197 @@ export class PassagemService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async findById(userId: bigint, passagemId: bigint) {
+    const isAdmin = await this.usuarioService.isAdmin(userId);
+
+    const whereClause: { id: bigint; adquiridaPorId?: bigint } = {
+      id: passagemId,
+    };
+
+    if (!isAdmin) {
+      whereClause.adquiridaPorId = userId;
+    }
+
+    try {
+      return await this.prisma.passagem.findUniqueOrThrow({
+        where: whereClause,
+        include: {
+          veiculos: true,
+          passageiros: true,
+          viagem: true,
+        },
+      });
+    } catch {
+      throw new HttpException('Passagem não encontrada', HttpStatus.NOT_FOUND);
+    }
+  }
+
+  async updatePaymentStatus(administradorId: bigint, passagemId: bigint) {
+    const passagemData = await this.prisma.passagem.findUniqueOrThrow({
+      where: { id: passagemId },
+      select: {
+        status: true,
+        pagaEm: true,
+        passageiros: {
+          select: { id: true, tipoId: true },
+        },
+        veiculos: {
+          select: { id: true, veiculoId: true },
+        },
+      },
+    });
+
+    if (passagemData.status === 'PAGA' || passagemData.pagaEm) {
+      throw new HttpException(
+        'Essa passagem já foi paga',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const tipoIds = passagemData.passageiros.map((p) => p.tipoId);
+    const veiculoIds = passagemData.veiculos.map((v) => v.veiculoId);
+
+    const [tiposPassageiro, veiculos] = await Promise.all([
+      this.prisma.tipoPassageiro.findMany({
+        where: { id: { in: tipoIds } },
+        select: { id: true, precoEmCentavos: true },
+      }),
+      this.prisma.veiculo.findMany({
+        where: { id: { in: veiculoIds } },
+        select: { id: true, precoPassagemEmCentavos: true },
+      }),
+    ]);
+
+    const passageiroPriceMap = new Map(
+      tiposPassageiro.map((tp) => [tp.id, tp.precoEmCentavos]),
+    );
+    const veiculoPriceMap = new Map(
+      veiculos.map((v) => [v.id, v.precoPassagemEmCentavos]),
+    );
+
+    return await this.prisma.$transaction(async (prisma) => {
+      const dataAtualUTC = new Date();
+
+      const passageiroUpdates = passagemData.passageiros.map((p) => {
+        const precoAuditado = passageiroPriceMap.get(p.tipoId);
+
+        if (precoAuditado === undefined) {
+          throw new Error(
+            `Preço não encontrado para TipoPassageiro ID: ${p.tipoId}`,
+          );
+        }
+
+        return prisma.passagemPassageiro.update({
+          where: { id: p.id },
+          data: { precoPagoEmCentavos: precoAuditado },
+        });
+      });
+
+      const veiculoUpdates = passagemData.veiculos.map((v) => {
+        const precoAuditado = veiculoPriceMap.get(v.veiculoId);
+
+        if (precoAuditado === undefined) {
+          throw new Error(
+            `Preço não encontrado para Veiculo ID: ${v.veiculoId}`,
+          );
+        }
+
+        return prisma.passagemVeiculo.update({
+          where: { id: v.id },
+          data: { precoPagoEmCentavos: precoAuditado },
+        });
+      });
+
+      await Promise.all([...passageiroUpdates, ...veiculoUpdates]);
+
+      return prisma.passagem.update({
+        where: { id: passagemId },
+        data: {
+          status: 'PAGA',
+          pagaEm: dataAtualUTC,
+          auditadaPorId: administradorId,
+        },
+        include: {
+          passageiros: true,
+          veiculos: true,
+        },
+      });
+    });
+  }
+
+  async cancel(userId: bigint, passagemId: bigint) {
+    const isAdministrador = await this.usuarioService.isAdmin(userId);
+
+    const whereClause: { id: bigint; adquiridaPorId?: bigint } = {
+      id: passagemId,
+    };
+
+    if (!isAdministrador) {
+      whereClause.adquiridaPorId = userId;
+    }
+
+    const passagem = await this.prisma.passagem.findUnique({
+      where: whereClause,
+      select: {
+        status: true,
+        canceladaEm: true,
+        adquiridaPorId: true,
+        viagemId: true,
+      },
+    });
+
+    if (!passagem) {
+      throw new HttpException('Passagem não encontrada.', HttpStatus.NOT_FOUND);
+    }
+
+    if (passagem.status === 'CANCELADA' || passagem.canceladaEm) {
+      throw new HttpException(
+        'Essa passagem já foi cancelada.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return await this.prisma.passagem.update({
+      where: { id: passagemId },
+      data: {
+        status: 'CANCELADA',
+        canceladaEm: new Date(),
+        auditadaPorId: userId,
+      },
+    });
+  }
+
+  async getAll(userId: bigint, pageSize: number, page: number) {
+    const skip = (page - 1) * pageSize;
+    const [pageData, total] = await Promise.all([
+      this.prisma.passagem.findMany({
+        take: pageSize,
+        skip: skip,
+        where: {
+          adquiridaPorId: userId,
+        },
+        orderBy: {
+          reservadaEm: 'asc',
+        },
+      }),
+      this.prisma.passagem.count({
+        where: {
+          adquiridaPorId: userId,
+        },
+      }),
+    ]);
+
+    return {
+      data: pageData,
+      meta: {
+        totalItens: total,
+        paginaAtual: page,
+        tamanhoPagina: pageSize,
+        totalPaginas: Math.ceil(total / pageSize),
+      },
+    };
   }
 
   private async passageiroValidations(
