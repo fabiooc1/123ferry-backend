@@ -118,11 +118,11 @@ export class PassagemService {
     }
   }
 
-  async findById(userId: bigint, passagemId: bigint) {
+  async findByCode(userId: bigint, codigo: string) {
     const isAdmin = await this.usuarioService.isAdmin(userId);
 
-    const whereClause: { id: bigint; adquiridaPorId?: bigint } = {
-      id: passagemId,
+    const whereClause: { codigo: string; adquiridaPorId?: bigint } = {
+      codigo,
     };
 
     if (!isAdmin) {
