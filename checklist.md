@@ -39,7 +39,7 @@
 - PASSAGEM
  - [x] Reservar/Comprar Passagem: POST /passagem
  - [x] Listar passagens adquiridas: GET /passagem
- - [x] Cancelar Passagem: PUT /passagem/:codigo/cancelar
+ - [x] Cancelar Passagem: PATCH /passagem/:codigo/cancelar
+ - [x] Atualizar status de pagamento PATCH /admin/pasagemId/paga
  - [x] Ver Passagem por Código: GET /admin/passagem/:codigo
- - [ ] Auditar Passagem: PUT /admin/passagem/:codigo/auditar
  - [x] Cancelar Passagem: PATCH /admin/passagem/:codigo/cancelar
