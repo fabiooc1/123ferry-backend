@@ -37,9 +37,9 @@
  - [ ] Desativar: DELETE /admin/viagem/:id
 
 - PASSAGEM
- - [ ] Reservar/Comprar Passagem: POST /passagem
- - [ ] Listar passagens adquiridas: GET /passagem
- - [ ] Cancelar Passagem: PUT /passagem/:codigo/cancelar
- - [ ] Ver Passagem por Código: GET /admin/passagem/:codigo
+ - [x] Reservar/Comprar Passagem: POST /passagem
+ - [x] Listar passagens adquiridas: GET /passagem
+ - [x] Cancelar Passagem: PUT /passagem/:codigo/cancelar
+ - [x] Ver Passagem por Código: GET /admin/passagem/:codigo
  - [ ] Auditar Passagem: PUT /admin/passagem/:codigo/auditar
- - [ ] Cancelar Passagem: PATCH /admin/passagem/:codigo/cancelar
+ - [x] Cancelar Passagem: PATCH /admin/passagem/:codigo/cancelar
