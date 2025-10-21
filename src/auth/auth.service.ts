@@ -5,16 +5,34 @@ import { type LoginDtoType } from 'src/usuario/dto/login-usuario.dto';
 import { UsuarioService } from 'src/usuario/usuario.service';
 import { UserPayload } from './interfaces/user-payload.interface';
 import { PerfilEnum } from './enums/perfil.enum';
+import { PrismaService } from 'src/database/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private prisma: PrismaService,
     private usuarioService: UsuarioService,
     private jwtService: JwtService,
   ) {}
 
   async login(data: LoginDtoType) {
-    const user = await this.usuarioService.findByLogin(data.login);
+    const user = await this.prisma.usuario.findFirst({
+      where: { OR: [{ email: data.login }, { cpf: data.login }] },
+      select: {
+        id: true,
+        email: true,
+        perfil: true,
+        senhaCriptografada: true,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException(
+        'Credenciais inválidas.',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     const isValidPassword = await compare(data.senha, user.senhaCriptografada);
 
     if (!isValidPassword) {
@@ -24,7 +42,7 @@ export class AuthService {
       );
     }
 
-    const userPerfil = user.perfilId as PerfilEnum;
+    const userPerfil = user.perfil.id as PerfilEnum;
 
     const payload: UserPayload = {
       sub: String(user.id),
@@ -34,6 +52,7 @@ export class AuthService {
 
     return {
       token: await this.jwtService.signAsync(payload),
+      perfil: user.perfil,
     };
   }
 }
