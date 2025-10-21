@@ -13,6 +13,10 @@ Object.defineProperty(BigInt.prototype, 'toJSON', {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: '*',
+  });
+
   const apiConfig = new DocumentBuilder()
     .setTitle('123Ferry API')
     .setDescription('Destinada a venda de passagens de ferryboat')
