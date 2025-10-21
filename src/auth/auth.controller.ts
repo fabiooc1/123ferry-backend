@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import { Body, Controller, HttpCode, Post, UsePipes } from '@nestjs/common';
 import {
   type LoginDtoType,
   loginSchema,
@@ -11,6 +11,7 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/login')
+  @HttpCode(200)
   @UsePipes(new ZodValidationPipe(loginSchema))
   login(@Body() loginDto: LoginDtoType) {
     return this.authService.login(loginDto);
