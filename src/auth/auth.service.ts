@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { compare } from 'bcrypt';
 import { type LoginDtoType } from 'src/usuario/dto/login-usuario.dto';
-import { UsuarioService } from 'src/usuario/usuario.service';
 import { UserPayload } from './interfaces/user-payload.interface';
 import { PerfilEnum } from './enums/perfil.enum';
 import { PrismaService } from 'src/database/prisma.service';
@@ -11,7 +10,6 @@ import { PrismaService } from 'src/database/prisma.service';
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private usuarioService: UsuarioService,
     private jwtService: JwtService,
   ) {}
 
