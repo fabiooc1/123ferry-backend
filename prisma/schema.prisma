@@ -169,6 +169,7 @@ model PassagemPassageiro {
   dataNascimento DateTime @db.Date
 
   precoPagoEmCentavos BigInt?
+  PassagemVeiculo     PassagemVeiculo[]
 
   @@index([tipoId, passagemId, nomeCompleto, cpf])
   @@map("passagem_passageiros")
@@ -191,12 +192,14 @@ model PassagemVeiculo {
 
   placa               String  @db.VarChar(10)
   passagemId          BigInt
+  passageiroId        BigInt
   veiculoId           BigInt
   precoPagoEmCentavos BigInt?
 
-  passagem Passagem @relation(fields: [passagemId], references: [id])
-  veiculo  Veiculo  @relation(fields: [veiculoId], references: [id])
+  passagem            Passagem           @relation(fields: [passagemId], references: [id])
+  veiculo             Veiculo            @relation(fields: [veiculoId], references: [id])
+  passagem_passageiro PassagemPassageiro @relation(fields: [passageiroId], references: [id])
 
-  @@index([passagemId, veiculoId])
+  @@index([passagemId, veiculoId, passageiroId])
   @@map("passagem_veiculos")
 }
