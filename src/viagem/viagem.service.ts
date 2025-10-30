@@ -149,8 +149,46 @@ export class ViagemService {
       this.prisma.viagem.count({ where: where }),
     ]);
 
+    const viagemIds = pageData.map((v) => v.id);
+
+    if (viagemIds.length === 0) {
+      return {
+        data: [],
+        meta: {
+          totalItens: total,
+          paginaAtual: page,
+          tamanhoPagina: pageSize,
+          totalPaginas: Math.ceil(total / pageSize),
+        },
+      };
+    }
+
+    const passengerCounts: { viagemId: bigint; passageiroCount: bigint }[] =
+      await this.prisma.$queryRaw`
+      SELECT
+        t."viagemId" as "viagemId",
+        COUNT(pp.id) as "passageiroCount"
+      FROM "passagem_passageiros" "pp"
+      INNER JOIN "passagens" "t" ON "pp"."passagemId" = "t".id
+      WHERE
+        "t"."viagemId" IN (${Prisma.join(viagemIds)})
+        AND "t"."status" = 'PAGA'
+      GROUP BY
+        t."viagemId"
+    `;
+
+    const countMap = new Map<bigint, number>();
+    for (const row of passengerCounts) {
+      countMap.set(row.viagemId, Number(row.passageiroCount));
+    }
+
+    const dataComContagem = pageData.map((viagem) => ({
+      ...viagem,
+      quantidadeDePassageiros: countMap.get(viagem.id) ?? 0,
+    }));
+
     return {
-      data: pageData,
+      data: dataComContagem,
       meta: {
         totalItens: total,
         paginaAtual: page,
