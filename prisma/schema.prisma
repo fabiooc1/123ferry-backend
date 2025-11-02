@@ -169,7 +169,7 @@ model PassagemPassageiro {
   cpf            String   @db.Char(14)
   dataNascimento DateTime @db.Date
 
-  precoPagoEmCentavos BigInt?
+  precoPagoEmCentavos Int?
   PassagemVeiculo     PassagemVeiculo[]
 
   @@index([tipoId, passagemId, nomeCompleto, cpf])
