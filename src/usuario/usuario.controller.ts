@@ -5,6 +5,7 @@ import {
   Post,
   UseGuards,
   Request,
+  Put,
 } from '@nestjs/common';
 import { UsuarioService } from './usuario.service';
 import {
@@ -14,6 +15,10 @@ import {
 import { AuthGuard } from 'src/auth/auth.guard';
 import { type RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 import { ZodValidationPipe } from 'src/pipes/zod.validation.pipe';
+import {
+  type UpdateUsuarioDtoType,
+  updateUsuarioSchema,
+} from './dto/update-usuario.dto';
 
 @Controller('usuario')
 export class UsuarioController {
@@ -32,5 +37,16 @@ export class UsuarioController {
   get(@Request() req: RequestWithUser) {
     const userId = Number(req.user.sub);
     return this.usuarioService.findById(userId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Put()
+  update(
+    @Request() req: RequestWithUser,
+    @Body(new ZodValidationPipe(updateUsuarioSchema))
+    updateUsuarioDto: UpdateUsuarioDtoType,
+  ) {
+    const userId = Number(req.user.sub);
+    return this.usuarioService.update(false, userId, updateUsuarioDto);
   }
 }

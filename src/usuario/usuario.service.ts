@@ -1,7 +1,14 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { hash } from 'bcrypt';
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateUsuarioDtoType } from './dto/create-usuario.dto';
+import { UpdateUsuarioDtoType } from './dto/update-usuario.dto';
+import { Prisma } from 'generated/prisma';
 
 @Injectable()
 export class UsuarioService {
@@ -109,10 +116,57 @@ export class UsuarioService {
     });
 
     if (!user) {
-      throw new HttpException('Usuario nao encontrado', HttpStatus.NOT_FOUND);
+      throw new HttpException('Usuario não encontrado', HttpStatus.NOT_FOUND);
     }
 
     return user;
+  }
+
+  async update(
+    isUpdatingByAdmin: boolean,
+    userId: number,
+    updateUsuarioDto: UpdateUsuarioDtoType,
+  ) {
+    await this.findById(userId);
+
+    const data: Prisma.UsuarioUpdateInput = {};
+
+    if (updateUsuarioDto.nomeCompleto) {
+      data.nomeCompleto = updateUsuarioDto.nomeCompleto;
+    }
+    if (updateUsuarioDto.telefone) {
+      data.telefone = updateUsuarioDto.telefone;
+    }
+
+    if (isUpdatingByAdmin) {
+      if (updateUsuarioDto.email) {
+        data.email = updateUsuarioDto.email;
+      }
+      if (updateUsuarioDto.cpf) {
+        data.cpf = updateUsuarioDto.cpf;
+      }
+      if (updateUsuarioDto.dataNascimento) {
+        data.dataNascimento = updateUsuarioDto.dataNascimento;
+      }
+      if (updateUsuarioDto.senha) {
+        data.senhaCriptografada = await hash(updateUsuarioDto.senha, 10);
+      }
+    } else {
+      if (
+        updateUsuarioDto.cpf ||
+        updateUsuarioDto.dataNascimento ||
+        updateUsuarioDto.email
+      ) {
+        throw new ForbiddenException(
+          'Você não tem permissão para alterar campos sensíveis.',
+        );
+      }
+    }
+
+    return this.prisma.usuario.update({
+      where: { id: userId },
+      data,
+    });
   }
 
   async isAdmin(userId: number) {
