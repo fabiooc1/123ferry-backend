@@ -52,6 +52,7 @@ export class SeedDatabase implements OnModuleInit {
     await this.seedProfiles();
     await this.seedPortos();
     await this.seedRotas();
+    await this.seedVehicles();
   }
 
   async seedProfiles() {
