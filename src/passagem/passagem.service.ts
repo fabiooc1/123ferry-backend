@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/database/prisma.service';
-import { CreatePassagemDto } from './dtos/create-passagem.dto';
-import { TipoPassageiroService } from 'src/tipo-passageiro/tipo-passageiro.service';
-import { PassageiroDto } from './dtos/passageiro.schema';
-import { ViagemService } from 'src/viagem/viagem.service';
-import { VeiculoService } from 'src/veiculo/veiculo.service';
-import { PassagemVeiculoDto } from './dtos/passagem-veiculo.schema';
 import { randomUUID } from 'node:crypto';
+import { PrismaService } from 'src/database/prisma.service';
+import { TipoPassageiroService } from 'src/tipo-passageiro/tipo-passageiro.service';
 import { UsuarioService } from 'src/usuario/usuario.service';
+import { VeiculoService } from 'src/veiculo/veiculo.service';
+import { ViagemService } from 'src/viagem/viagem.service';
+import { CreatePassagemDto } from './dtos/create-passagem.dto';
+import { PassageiroDto } from './dtos/passageiro.schema';
+import { PassagemVeiculoDto } from './dtos/passagem-veiculo.schema';
 
 @Injectable()
 export class PassagemService {
@@ -311,6 +311,22 @@ export class PassagemService {
         skip: skip,
         where: {
           adquiridaPorId: userId,
+        },
+        select: {
+          id: true,
+          codigo: true,
+          viagem: {
+            select: {
+              rota: {
+                select: {
+                  origem: true,
+                  destino: true,
+                },
+              },
+              dataPartida: true,
+              dataChegada: true,
+            },
+          },
         },
         orderBy: {
           reservadaEm: 'asc',
