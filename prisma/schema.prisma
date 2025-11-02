@@ -29,9 +29,10 @@ model Perfil {
 }
 
 model Usuario {
-  id                 BigInt   @id @default(autoincrement())
+  id                 Int      @id @default(autoincrement())
   nomeCompleto       String   @db.VarChar(100)
   email              String   @unique @db.VarChar(255)
+  telefone           String   @unique @db.Char(15)
   cpf                String   @unique @db.Char(14)
   dataNascimento     DateTime @db.Date
   senhaCriptografada String   @db.VarChar(255)
@@ -51,7 +52,7 @@ model Usuario {
 }
 
 model Ferry {
-  id                   BigInt  @id @default(autoincrement())
+  id                   Int     @id @default(autoincrement())
   nome                 String  @unique @db.VarChar(100)
   maximoDePessoas      Int
   maximoDeVeiculosEmM2 Decimal @db.Decimal(10, 2)
@@ -65,7 +66,7 @@ model Ferry {
 }
 
 model Porto {
-  id   BigInt @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   nome String @unique @db.VarChar(100)
 
   rotasOrigem  Rota[] @relation("rotasOrigem")
@@ -76,14 +77,14 @@ model Porto {
 }
 
 model Rota {
-  id   BigInt @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   nome String @unique @db.VarChar(100)
 
-  origemId BigInt
-  origem   Porto  @relation(name: "rotasOrigem", fields: [origemId], references: [id])
+  origemId Int
+  origem   Porto @relation(name: "rotasOrigem", fields: [origemId], references: [id])
 
-  destinoId BigInt
-  destino   Porto  @relation(name: "rotasDestino", fields: [destinoId], references: [id])
+  destinoId Int
+  destino   Porto @relation(name: "rotasDestino", fields: [destinoId], references: [id])
 
   viagens Viagem[]
 
@@ -92,18 +93,18 @@ model Rota {
 }
 
 model Viagem {
-  id BigInt @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  ferryId BigInt
-  ferry   Ferry  @relation(fields: [ferryId], references: [id])
+  ferryId Int
+  ferry   Ferry @relation(fields: [ferryId], references: [id])
 
-  rotaId BigInt
-  rota   Rota   @relation(fields: [rotaId], references: [id])
+  rotaId Int
+  rota   Rota @relation(fields: [rotaId], references: [id])
 
   dataPartida DateTime
   dataChegada DateTime
 
-  criadaPorId  BigInt
+  criadaPorId  Int
   criadaPor    Usuario  @relation(fields: [criadaPorId], references: [id])
   criadaEm     DateTime @default(now())
   atualizadaEm DateTime @updatedAt
@@ -121,21 +122,21 @@ enum PassagemStatus {
 }
 
 model Passagem {
-  id     BigInt         @id @default(autoincrement())
+  id     Int            @id @default(autoincrement())
   codigo String         @unique @db.VarChar(255)
   status PassagemStatus @default(RESERVADA)
 
-  adquiridaPorId BigInt
+  adquiridaPorId Int
   adquiridaPor   Usuario @relation(name: "adquiridaPor", fields: [adquiridaPorId], references: [id])
 
-  viagemId BigInt
+  viagemId Int
   viagem   Viagem @relation(fields: [viagemId], references: [id])
 
   reservadaEm DateTime  @default(now())
   pagaEm      DateTime?
   canceladaEm DateTime?
 
-  auditadaPorId BigInt?
+  auditadaPorId Int?
   auditadaPor   Usuario? @relation(name: "auditadaPor", fields: [auditadaPorId], references: [id])
 
   passageiros PassagemPassageiro[]
@@ -148,7 +149,7 @@ model Passagem {
 model TipoPassageiro {
   id              Int                  @id @default(autoincrement())
   nome            String               @unique @db.VarChar(100)
-  precoEmCentavos BigInt
+  precoEmCentavos Int
   passageiros     PassagemPassageiro[]
 
   @@index([nome])
@@ -156,12 +157,12 @@ model TipoPassageiro {
 }
 
 model PassagemPassageiro {
-  id BigInt @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   tipoId Int
   tipo   TipoPassageiro @relation(fields: [tipoId], references: [id])
 
-  passagemId BigInt
+  passagemId Int
   passagem   Passagem @relation(fields: [passagemId], references: [id])
 
   nomeCompleto   String   @db.VarChar(100)
@@ -176,10 +177,10 @@ model PassagemPassageiro {
 }
 
 model Veiculo {
-  id                      BigInt  @id @default(autoincrement())
+  id                      Int     @id @default(autoincrement())
   nome                    String  @unique @db.VarChar(100)
   tamanhoEmM2             Decimal @db.Decimal(10, 2)
-  precoPassagemEmCentavos BigInt
+  precoPassagemEmCentavos Int
 
   passagens PassagemVeiculo[]
 
@@ -188,13 +189,13 @@ model Veiculo {
 }
 
 model PassagemVeiculo {
-  id BigInt @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  placa               String  @db.VarChar(10)
-  passagemId          BigInt
-  passageiroId        BigInt
-  veiculoId           BigInt
-  precoPagoEmCentavos BigInt?
+  placa               String @db.VarChar(10)
+  passagemId          Int
+  passageiroId        Int
+  veiculoId           Int
+  precoPagoEmCentavos Int?
 
   passagem            Passagem           @relation(fields: [passagemId], references: [id])
   veiculo             Veiculo            @relation(fields: [veiculoId], references: [id])
