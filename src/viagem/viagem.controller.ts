@@ -28,7 +28,7 @@ export class ViagemController {
   }
 
   @Get(':viagemId')
-  get(@Param('viagemId', ParseIntPipe) viagemId: bigint) {
+  get(@Param('viagemId', ParseIntPipe) viagemId: number) {
     return this.viagemService.findById(viagemId);
   }
 }

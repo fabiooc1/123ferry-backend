@@ -3,11 +3,13 @@ import { passwordSchema } from './password.schema';
 import { cpfSchema } from './cpf.schema';
 import { dataNascimentoSchema } from './dataNascimento.schema';
 import { nomeCompletoSchema } from './nomeCompletoSchema';
+import { telefoneSchema } from './telefone.schema.dto';
 
 export const createUsuarioSchema = z.object({
   nomeCompleto: nomeCompletoSchema,
   email: z.email('formato do e-mail inválido'),
   cpf: cpfSchema,
+  telefone: telefoneSchema,
   dataNascimento: dataNascimentoSchema,
   senha: passwordSchema,
 });

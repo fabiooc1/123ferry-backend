@@ -3,7 +3,7 @@ import z from 'zod';
 
 export const pasagemVeiculoSchema = z.object({
   placa: z.string().min(10),
-  veiculoId: z.coerce.bigint().positive(),
+  veiculoId: z.coerce.number().positive(),
   motoristaCpf: cpfSchema,
 });
 

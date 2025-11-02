@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateUsuarioDtoType } from './dto/create-usuario.dto';
-import { PrismaService } from 'src/database/prisma.service';
 import { hash } from 'bcrypt';
+import { PrismaService } from 'src/database/prisma.service';
+import { CreateUsuarioDtoType } from './dto/create-usuario.dto';
 
 @Injectable()
 export class UsuarioService {
@@ -15,7 +15,29 @@ export class UsuarioService {
     });
 
     if (findUserWithSamerEmail > 0) {
-      throw new HttpException('E-mail já utilizado', HttpStatus.CONFLICT);
+      throw new HttpException(
+        {
+          field: 'email',
+          message: 'e-mail em uso',
+        },
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    const fiendUserWithSamerPhone = await this.prisma.usuario.count({
+      where: {
+        telefone: data.telefone,
+      },
+    });
+
+    if (fiendUserWithSamerPhone > 0) {
+      throw new HttpException(
+        {
+          field: 'phone',
+          message: 'telefone em uso',
+        },
+        HttpStatus.CONFLICT,
+      );
     }
 
     const findUserWithSamerCPF = await this.prisma.usuario.count({
@@ -25,7 +47,13 @@ export class UsuarioService {
     });
 
     if (findUserWithSamerCPF > 0) {
-      throw new HttpException('CPF já utilizado', HttpStatus.CONFLICT);
+      throw new HttpException(
+        {
+          field: 'cpf',
+          message: 'CPF já utilizado',
+        },
+        HttpStatus.CONFLICT,
+      );
     }
 
     const passwordHash = await hash(data.senha, 10);
@@ -35,6 +63,7 @@ export class UsuarioService {
         nomeCompleto: data.nomeCompleto,
         cpf: data.cpf,
         email: data.email,
+        telefone: data.telefone,
         dataNascimento: data.dataNascimento,
         senhaCriptografada: passwordHash,
         perfilId: 1,
@@ -65,7 +94,7 @@ export class UsuarioService {
     return user;
   }
 
-  async findById(userId: bigint) {
+  async findById(userId: number) {
     const user = await this.prisma.usuario.findUnique({
       where: {
         id: userId,
@@ -86,7 +115,7 @@ export class UsuarioService {
     return user;
   }
 
-  async isAdmin(userId: bigint) {
+  async isAdmin(userId: number) {
     try {
       const usuario = await this.prisma.usuario.findUniqueOrThrow({
         where: {

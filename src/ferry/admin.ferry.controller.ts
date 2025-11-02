@@ -38,7 +38,7 @@ export class AdminFerryController {
 
   @Put(':ferryId')
   async update(
-    @Param('ferryId', ParseIntPipe) ferryId: bigint,
+    @Param('ferryId', ParseIntPipe) ferryId: number,
     @Body(new ZodValidationPipe(updateFerrySchema))
     updateFerryDto: UpdateFerryDto,
   ) {

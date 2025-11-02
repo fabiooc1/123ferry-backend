@@ -19,7 +19,7 @@ export class PassagemService {
     private usuarioService: UsuarioService,
   ) {}
 
-  async create(userId: bigint, createPassagemDto: CreatePassagemDto) {
+  async create(userId: number, createPassagemDto: CreatePassagemDto) {
     const viagem = await this.viagemService.existById(
       createPassagemDto.viagemId,
     );
@@ -80,23 +80,44 @@ export class PassagemService {
         });
         const newPassagemId = passagem.id;
 
-        const passageirosData = createPassagemDto.passageiros.map(
-          (passageiroDto) => ({
-            nomeCompleto: passageiroDto.nomeCompleto,
-            cpf: passageiroDto.cpf,
-            dataNascimento: passageiroDto.dataNascimento,
-            passagemId: newPassagemId,
-            tipoId: passageiroDto.tipoId,
-          }),
-        );
-        await prisma.passagemPassageiro.createMany({ data: passageirosData });
+        const cpfToPassageiroIdMap = new Map<string, number>();
+
+        for (const passageiroDto of createPassagemDto.passageiros) {
+          const novoPassageiro = await prisma.passagemPassageiro.create({
+            data: {
+              ...passageiroDto,
+              passagemId: newPassagemId,
+            },
+            select: {
+              id: true,
+              cpf: true,
+            },
+          });
+
+          cpfToPassageiroIdMap.set(novoPassageiro.cpf, novoPassageiro.id);
+        }
 
         if (createPassagemDto.veiculos.length > 0) {
-          const veiculosData = createPassagemDto.veiculos.map((veiculoDto) => ({
-            placa: veiculoDto.placa,
-            veiculoId: veiculoDto.veiculoId,
-            passagemId: newPassagemId,
-          }));
+          const veiculosData = createPassagemDto.veiculos.map((veiculoDto) => {
+            const passageiroId = cpfToPassageiroIdMap.get(
+              veiculoDto.motoristaCpf,
+            );
+
+            if (!passageiroId) {
+              throw new HttpException(
+                `Motorista com CPF ${veiculoDto.motoristaCpf} não encontrado na lista de passageiros.`,
+                HttpStatus.BAD_REQUEST,
+              );
+            }
+
+            return {
+              placa: veiculoDto.placa,
+              veiculoId: veiculoDto.veiculoId,
+              passagemId: newPassagemId,
+              passageiroId: passageiroId,
+            };
+          });
+
           await prisma.passagemVeiculo.createMany({ data: veiculosData });
         }
 
@@ -110,7 +131,11 @@ export class PassagemService {
       });
 
       return passagemFinal;
-    } catch {
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
       throw new HttpException(
         'Não foi possível realizar a reserva dessa passagem. Tente novamente mais tarde',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -118,10 +143,10 @@ export class PassagemService {
     }
   }
 
-  async findByCode(userId: bigint, codigo: string) {
+  async findByCode(userId: number, codigo: string) {
     const isAdmin = await this.usuarioService.isAdmin(userId);
 
-    const whereClause: { codigo: string; adquiridaPorId?: bigint } = {
+    const whereClause: { codigo: string; adquiridaPorId?: number } = {
       codigo,
     };
 
@@ -143,7 +168,7 @@ export class PassagemService {
     }
   }
 
-  async updatePaymentStatus(administradorId: bigint, passagemId: bigint) {
+  async updatePaymentStatus(administradorId: number, passagemId: number) {
     const passagemData = await this.prisma.passagem.findUniqueOrThrow({
       where: { id: passagemId },
       select: {
@@ -236,10 +261,10 @@ export class PassagemService {
     });
   }
 
-  async cancel(userId: bigint, passagemId: bigint) {
+  async cancel(userId: number, passagemId: number) {
     const isAdministrador = await this.usuarioService.isAdmin(userId);
 
-    const whereClause: { id: bigint; adquiridaPorId?: bigint } = {
+    const whereClause: { id: number; adquiridaPorId?: number } = {
       id: passagemId,
     };
 
@@ -278,7 +303,7 @@ export class PassagemService {
     });
   }
 
-  async getAll(userId: bigint, pageSize: number, page: number) {
+  async getAll(userId: number, pageSize: number, page: number) {
     const skip = (page - 1) * pageSize;
     const [pageData, total] = await Promise.all([
       this.prisma.passagem.findMany({

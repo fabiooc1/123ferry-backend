@@ -36,13 +36,13 @@ export class AdminViagemController {
     @Body(new ZodValidationPipe(createViagemSchema))
     createViagemDto: CreateViagemDto,
   ) {
-    const userId = BigInt(req.user.sub);
+    const userId = Number(req.user.sub);
     return this.viagemService.create(userId, createViagemDto);
   }
 
   @Put(':viagemId')
   async update(
-    @Param('viagemId', ParseIntPipe) viagemId: bigint,
+    @Param('viagemId', ParseIntPipe) viagemId: number,
     @Body(new ZodValidationPipe(updateViagemSchema))
     updateViagemDto: UpdateViagemDto,
   ) {

@@ -38,7 +38,7 @@ export class AdminPortoController {
 
   @Put(':portoId')
   async update(
-    @Param('portoId', ParseIntPipe) portoId: bigint,
+    @Param('portoId', ParseIntPipe) portoId: number,
     @Body(new ZodValidationPipe(updatePortoSchema))
     updatePortoDto: UpdatePortoDto,
   ) {

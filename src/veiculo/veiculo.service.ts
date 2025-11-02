@@ -5,7 +5,7 @@ import { PrismaService } from 'src/database/prisma.service';
 export class VeiculoService {
   constructor(private prisma: PrismaService) {}
 
-  async existById(veiculoId: bigint) {
+  async existById(veiculoId: number) {
     const veiculo = await this.prisma.veiculo.findFirst({
       where: {
         id: veiculoId,
@@ -16,5 +16,9 @@ export class VeiculoService {
     });
 
     return veiculo != null;
+  }
+
+  async getAll() {
+    return await this.prisma.veiculo.findMany();
   }
 }

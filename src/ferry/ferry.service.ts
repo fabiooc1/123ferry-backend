@@ -34,7 +34,7 @@ export class FerryService {
     return amount > 0;
   }
 
-  async existById(ferryId: bigint) {
+  async existById(ferryId: number) {
     const amount = await this.prisma.ferry.count({
       where: {
         id: ferryId,
@@ -44,7 +44,7 @@ export class FerryService {
     return amount > 0;
   }
 
-  async findById(ferryId: bigint) {
+  async findById(ferryId: number) {
     const ferry = await this.prisma.ferry.findUnique({
       where: {
         id: ferryId,
@@ -58,7 +58,7 @@ export class FerryService {
     return ferry;
   }
 
-  async update(ferryId: bigint, updateFerryDto: UpdateFerryDto) {
+  async update(ferryId: number, updateFerryDto: UpdateFerryDto) {
     const ferry = await this.existById(ferryId);
 
     if (!ferry) {

@@ -24,7 +24,7 @@ export class PortoController {
   }
 
   @Get(':portoId')
-  get(@Param('portoId', ParseIntPipe) portoId: bigint) {
+  get(@Param('portoId', ParseIntPipe) portoId: number) {
     return this.portoService.findById(portoId);
   }
 }

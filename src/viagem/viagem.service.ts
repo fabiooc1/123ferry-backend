@@ -15,7 +15,7 @@ export class ViagemService {
     private rotaService: RotaService,
   ) {}
 
-  async create(userId: bigint, createViagemDto: CreateViagemDto) {
+  async create(userId: number, createViagemDto: CreateViagemDto) {
     const ferry = await this.ferryService.existById(createViagemDto.ferryId);
 
     if (!ferry) {
@@ -43,7 +43,7 @@ export class ViagemService {
     });
   }
 
-  async findById(viagemId: bigint) {
+  async findById(viagemId: number) {
     const viagem = await this.prisma.viagem.findUnique({
       where: {
         id: viagemId,
@@ -61,7 +61,7 @@ export class ViagemService {
     return viagem;
   }
 
-  async update(viagemId: bigint, updateViagemDto: UpdateViagemDto) {
+  async update(viagemId: number, updateViagemDto: UpdateViagemDto) {
     if (Object.keys(updateViagemDto).length === 0) {
       throw new HttpException(
         'Nenhum dado de atualização fornecido',
@@ -163,7 +163,7 @@ export class ViagemService {
       };
     }
 
-    const passengerCounts: { viagemId: bigint; passageiroCount: bigint }[] =
+    const passengerCounts: { viagemId: number; passageiroCount: number }[] =
       await this.prisma.$queryRaw`
       SELECT
         t."viagemId" as "viagemId",
@@ -177,7 +177,7 @@ export class ViagemService {
         t."viagemId"
     `;
 
-    const countMap = new Map<bigint, number>();
+    const countMap = new Map<number, number>();
     for (const row of passengerCounts) {
       countMap.set(row.viagemId, Number(row.passageiroCount));
     }
@@ -198,7 +198,7 @@ export class ViagemService {
     };
   }
 
-  async existById(viagemId: bigint) {
+  async existById(viagemId: number) {
     const viagem = await this.prisma.viagem.findFirst({
       where: {
         id: viagemId,
@@ -212,7 +212,7 @@ export class ViagemService {
   }
 
   async isAvaliableShellPassagem(
-    viagemId: bigint,
+    viagemId: number,
     amountNewPassageiros: number,
   ): Promise<boolean> {
     const viagem = await this.prisma.viagem.findUniqueOrThrow({

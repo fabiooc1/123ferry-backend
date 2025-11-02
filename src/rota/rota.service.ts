@@ -59,7 +59,7 @@ export class RotaService {
     });
   }
 
-  async findById(rotaId: bigint) {
+  async findById(rotaId: number) {
     const rote = await this.prisma.rota.findUnique({
       where: {
         id: rotaId,
@@ -73,7 +73,7 @@ export class RotaService {
     return rote;
   }
 
-  async existById(rotaId: bigint) {
+  async existById(rotaId: number) {
     const rote = await this.prisma.rota.findFirst({
       where: {
         id: rotaId,
@@ -99,7 +99,7 @@ export class RotaService {
     return route != null;
   }
 
-  async update(rotaId: bigint, updateRotaDto: UpdateRotaDto) {
+  async update(rotaId: number, updateRotaDto: UpdateRotaDto) {
     if (Object.keys(updateRotaDto).length === 0) {
       throw new HttpException(
         'Nenhum dado de atualização fornecido',
@@ -202,8 +202,8 @@ export class RotaService {
   }
 
   private async alreadyExistRouteWithSameOrigemAndDestino(
-    origemId: bigint,
-    destinoId: bigint,
+    origemId: number,
+    destinoId: number,
   ): Promise<boolean> {
     const rota = await this.prisma.rota.findFirst({
       where: {

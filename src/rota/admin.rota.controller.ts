@@ -31,7 +31,7 @@ export class AdminRotaController {
 
   @Put(':rotaId')
   async update(
-    @Param('rotaId', ParseIntPipe) rotaId: bigint,
+    @Param('rotaId', ParseIntPipe) rotaId: number,
     @Body(new ZodValidationPipe(updateRotaSchema)) updateRotaDto: UpdateRotaDto,
   ) {
     return this.rotaService.update(rotaId, updateRotaDto);

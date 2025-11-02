@@ -36,7 +36,7 @@ export class PortoService {
     return amount > 1;
   }
 
-  async existById(portoId: bigint) {
+  async existById(portoId: number) {
     const amount = await this.prisma.porto.count({
       where: {
         id: portoId,
@@ -46,7 +46,7 @@ export class PortoService {
     return amount > 1;
   }
 
-  async findById(portoId: bigint) {
+  async findById(portoId: number) {
     const porto = await this.prisma.porto.findUnique({
       where: {
         id: portoId,
@@ -84,7 +84,7 @@ export class PortoService {
     };
   }
 
-  async update(portoId: bigint, updatePortoDto: UpdatePortoDto) {
+  async update(portoId: number, updatePortoDto: UpdatePortoDto) {
     const porto = await this.existById(portoId);
 
     if (!porto) {

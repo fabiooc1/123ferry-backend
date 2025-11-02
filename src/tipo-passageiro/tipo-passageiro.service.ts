@@ -17,4 +17,8 @@ export class TipoPassageiroService {
 
     return tipo != null;
   }
+
+  async getAll() {
+    return await this.prisma.tipoPassageiro.findMany();
+  }
 }

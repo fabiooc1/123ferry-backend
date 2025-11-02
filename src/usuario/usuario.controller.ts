@@ -30,7 +30,7 @@ export class UsuarioController {
   @UseGuards(AuthGuard)
   @Get('/me')
   get(@Request() req: RequestWithUser) {
-    const userId = BigInt(req.user.sub);
+    const userId = Number(req.user.sub);
     return this.usuarioService.findById(userId);
   }
 }

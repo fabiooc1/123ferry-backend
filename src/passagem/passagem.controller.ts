@@ -30,7 +30,7 @@ export class PassagemController {
     @Request() req: RequestWithUser,
     @Body(new ZodValidationPipe(createPassagemSchema)) body: CreatePassagemDto,
   ) {
-    const userId = BigInt(req.user.sub);
+    const userId = Number(req.user.sub);
     return this.passagemService.create(userId, body);
   }
 
@@ -39,16 +39,16 @@ export class PassagemController {
     @Request() req: RequestWithUser,
     @Param('codigo') codigo: string,
   ) {
-    const userId = BigInt(req.user.sub);
+    const userId = Number(req.user.sub);
     return this.passagemService.findByCode(userId, codigo);
   }
 
   @Patch(':id/cancelar')
   async cancelar(
     @Request() req: RequestWithUser,
-    @Param('id', ParseIntPipe) passagemId: bigint,
+    @Param('id', ParseIntPipe) passagemId: number,
   ) {
-    const userId = BigInt(req.user.sub);
+    const userId = Number(req.user.sub);
     return this.passagemService.cancel(userId, passagemId);
   }
 
@@ -58,7 +58,7 @@ export class PassagemController {
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('pageSize', new DefaultValuePipe(6), ParseIntPipe) pageSize: number,
   ) {
-    const userId = BigInt(req.user.sub);
+    const userId = Number(req.user.sub);
     return this.passagemService.getAll(userId, pageSize, page);
   }
 }

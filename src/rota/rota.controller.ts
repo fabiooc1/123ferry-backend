@@ -24,7 +24,7 @@ export class RotaController {
   }
 
   @Get(':rotaId')
-  get(@Param('rotaId', ParseIntPipe) rotaId: bigint) {
+  get(@Param('rotaId', ParseIntPipe) rotaId: number) {
     return this.rotaService.findById(rotaId);
   }
 }

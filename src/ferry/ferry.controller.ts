@@ -23,7 +23,7 @@ export class FerryController {
   }
 
   @Get(':ferryId')
-  get(@Param('ferryId', ParseIntPipe) ferryId: bigint) {
+  get(@Param('ferryId', ParseIntPipe) ferryId: number) {
     return this.ferryService.findById(ferryId);
   }
 }
