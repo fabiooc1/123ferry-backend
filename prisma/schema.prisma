@@ -66,13 +66,14 @@ model Ferry {
 }
 
 model Porto {
-  id   Int    @id @default(autoincrement())
-  nome String @unique @db.VarChar(100)
+  id     Int    @id @default(autoincrement())
+  nome   String @unique @db.VarChar(100)
+  cidade String @db.VarChar(100)
 
   rotasOrigem  Rota[] @relation("rotasOrigem")
   rotasDestino Rota[] @relation("rotasDestino")
 
-  @@index([nome])
+  @@index([nome, cidade])
   @@map("portos")
 }
 
@@ -88,6 +89,7 @@ model Rota {
 
   viagens Viagem[]
 
+  @@unique([origemId, destinoId])
   @@index([nome, origemId, destinoId])
   @@map("rotas")
 }
@@ -176,7 +178,7 @@ model PassagemPassageiro {
   @@map("passagem_passageiros")
 }
 
-model Veiculo {
+model VeiculoCategoria {
   id                      Int     @id @default(autoincrement())
   nome                    String  @unique @db.VarChar(100)
   tamanhoEmM2             Decimal @db.Decimal(10, 2)
@@ -185,7 +187,7 @@ model Veiculo {
   passagens PassagemVeiculo[]
 
   @@index([nome])
-  @@map("veiculos")
+  @@map("veiculo_categoria")
 }
 
 model PassagemVeiculo {
@@ -193,14 +195,14 @@ model PassagemVeiculo {
 
   placa               String @db.VarChar(10)
   passagemId          Int
-  passageiroId        Int
-  veiculoId           Int
+  motoristaId         Int
+  veiculoCategoriaId  Int
   precoPagoEmCentavos Int?
 
-  passagem            Passagem           @relation(fields: [passagemId], references: [id])
-  veiculo             Veiculo            @relation(fields: [veiculoId], references: [id])
-  passagem_passageiro PassagemPassageiro @relation(fields: [passageiroId], references: [id])
+  passagem         Passagem           @relation(fields: [passagemId], references: [id])
+  veiculoCategoria VeiculoCategoria   @relation(fields: [veiculoCategoriaId], references: [id])
+  motorista        PassagemPassageiro @relation(fields: [motoristaId], references: [id])
 
-  @@index([passagemId, veiculoId, passageiroId])
+  @@index([passagemId, veiculoCategoriaId, motoristaId])
   @@map("passagem_veiculos")
 }
