@@ -10,7 +10,7 @@ import { RotaModule } from './rota/rota.module';
 import { ViagemModule } from './viagem/viagem.module';
 import { PassagemModule } from './passagem/passagem.module';
 import { TipoPassageiroModule } from './tipo-passageiro/tipo-passageiro.module';
-import { VeiculoModule } from './veiculo/veiculo.module';
+import { VeiculoCategoriaModule } from './veiculo-categoria/veiculo-categoria.module';
 
 @Module({
   imports: [
@@ -26,7 +26,7 @@ import { VeiculoModule } from './veiculo/veiculo.module';
     ViagemModule,
     PassagemModule,
     TipoPassageiroModule,
-    VeiculoModule,
+    VeiculoCategoriaModule,
   ],
   controllers: [],
   providers: [SeedDatabase],
