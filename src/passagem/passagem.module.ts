@@ -3,7 +3,7 @@ import { PassagemService } from './passagem.service';
 import { PassagemController } from './passagem.controller';
 import { DatabaseModule } from 'src/database/database.module';
 import { TipoPassageiroModule } from 'src/tipo-passageiro/tipo-passageiro.module';
-import { VeiculoModule } from 'src/veiculo/veiculo.module';
+import { VeiculoCategoriaModule } from 'src/veiculo-categoria/veiculo-categoria.module';
 import { ViagemModule } from 'src/viagem/viagem.module';
 import { UsuarioModule } from 'src/usuario/usuario.module';
 import { AdminPassagemController } from './admin.passagem.controller';
@@ -15,7 +15,7 @@ import { AdminPassagemController } from './admin.passagem.controller';
     DatabaseModule,
     TipoPassageiroModule,
     ViagemModule,
-    VeiculoModule,
+    VeiculoCategoriaModule,
     UsuarioModule,
   ],
 })

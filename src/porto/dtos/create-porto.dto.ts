@@ -4,6 +4,7 @@ export const createPortoSchema = z.object({
   nome: z
     .string('tipo inválido')
     .max(100, 'nome muito grande, utilize no máximo 100 caracteres'),
+  cidade: z.string().max(100),
 });
 
 export type CreatePortoDto = z.infer<typeof createPortoSchema>;

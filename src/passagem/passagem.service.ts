@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { randomUUID } from 'node:crypto';
+import { randomBytes } from 'node:crypto';
 import { PrismaService } from 'src/database/prisma.service';
 import { TipoPassageiroService } from 'src/tipo-passageiro/tipo-passageiro.service';
 import { UsuarioService } from 'src/usuario/usuario.service';
-import { VeiculoService } from 'src/veiculo/veiculo.service';
+import { VeiculoCategoriaService } from 'src/veiculo-categoria/veiculo-categoria.service';
 import { ViagemService } from 'src/viagem/viagem.service';
 import { CreatePassagemDto } from './dtos/create-passagem.dto';
 import { PassageiroDto } from './dtos/passageiro.schema';
@@ -15,7 +15,7 @@ export class PassagemService {
     private prisma: PrismaService,
     private tipoPassageiroService: TipoPassageiroService,
     private viagemService: ViagemService,
-    private veiculoService: VeiculoService,
+    private veiculoCategoriaService: VeiculoCategoriaService,
     private usuarioService: UsuarioService,
   ) {}
 
@@ -112,9 +112,9 @@ export class PassagemService {
 
             return {
               placa: veiculoDto.placa,
-              veiculoId: veiculoDto.veiculoId,
+              veiculoCategoriaId: veiculoDto.veiculoCategoriaId,
               passagemId: newPassagemId,
-              passageiroId: passageiroId,
+              motoristaId: passageiroId,
             };
           });
 
@@ -158,9 +158,27 @@ export class PassagemService {
       return await this.prisma.passagem.findUniqueOrThrow({
         where: whereClause,
         include: {
-          veiculos: true,
-          passageiros: true,
-          viagem: true,
+          veiculos: {
+            include: {
+              veiculoCategoria: true,
+            },
+          },
+          passageiros: {
+            include: {
+              tipo: true,
+            },
+          },
+          viagem: {
+            include: {
+              ferry: true,
+              rota: {
+                include: {
+                  origem: true,
+                  destino: true,
+                },
+              },
+            },
+          },
         },
       });
     } catch {
@@ -169,59 +187,42 @@ export class PassagemService {
   }
 
   async updatePaymentStatus(administradorId: number, passagemId: number) {
-    const passagemData = await this.prisma.passagem.findUniqueOrThrow({
+    const passagem = await this.prisma.passagem.findUniqueOrThrow({
       where: { id: passagemId },
       select: {
         status: true,
         pagaEm: true,
         passageiros: {
-          select: { id: true, tipoId: true },
+          select: {
+            id: true,
+            tipo: {
+              select: { precoEmCentavos: true },
+            },
+          },
         },
         veiculos: {
-          select: { id: true, veiculoId: true },
+          select: {
+            id: true,
+            veiculoCategoria: {
+              select: { precoPassagemEmCentavos: true },
+            },
+          },
         },
       },
     });
 
-    if (passagemData.status === 'PAGA' || passagemData.pagaEm) {
+    if (passagem.status === 'PAGA' || passagem.pagaEm) {
       throw new HttpException(
         'Essa passagem já foi paga',
         HttpStatus.BAD_REQUEST,
       );
     }
 
-    const tipoIds = passagemData.passageiros.map((p) => p.tipoId);
-    const veiculoIds = passagemData.veiculos.map((v) => v.veiculoId);
-
-    const [tiposPassageiro, veiculos] = await Promise.all([
-      this.prisma.tipoPassageiro.findMany({
-        where: { id: { in: tipoIds } },
-        select: { id: true, precoEmCentavos: true },
-      }),
-      this.prisma.veiculo.findMany({
-        where: { id: { in: veiculoIds } },
-        select: { id: true, precoPassagemEmCentavos: true },
-      }),
-    ]);
-
-    const passageiroPriceMap = new Map(
-      tiposPassageiro.map((tp) => [tp.id, tp.precoEmCentavos]),
-    );
-    const veiculoPriceMap = new Map(
-      veiculos.map((v) => [v.id, v.precoPassagemEmCentavos]),
-    );
-
     return await this.prisma.$transaction(async (prisma) => {
       const dataAtualUTC = new Date();
 
-      const passageiroUpdates = passagemData.passageiros.map((p) => {
-        const precoAuditado = passageiroPriceMap.get(p.tipoId);
-
-        if (precoAuditado === undefined) {
-          throw new Error(
-            `Preço não encontrado para TipoPassageiro ID: ${p.tipoId}`,
-          );
-        }
+      const passageiroUpdates = passagem.passageiros.map((p) => {
+        const precoAuditado = p.tipo.precoEmCentavos;
 
         return prisma.passagemPassageiro.update({
           where: { id: p.id },
@@ -229,14 +230,8 @@ export class PassagemService {
         });
       });
 
-      const veiculoUpdates = passagemData.veiculos.map((v) => {
-        const precoAuditado = veiculoPriceMap.get(v.veiculoId);
-
-        if (precoAuditado === undefined) {
-          throw new Error(
-            `Preço não encontrado para Veiculo ID: ${v.veiculoId}`,
-          );
-        }
+      const veiculoUpdates = passagem.veiculos.map((v) => {
+        const precoAuditado = v.veiculoCategoria.precoPassagemEmCentavos;
 
         return prisma.passagemVeiculo.update({
           where: { id: v.id },
@@ -362,7 +357,11 @@ export class PassagemService {
   }
 
   private async veiculoValidations(veiculo: PassagemVeiculoDto): Promise<void> {
-    if (!(await this.veiculoService.existById(veiculo.veiculoId))) {
+    if (
+      !(await this.veiculoCategoriaService.existById(
+        veiculo.veiculoCategoriaId,
+      ))
+    ) {
       throw new HttpException(
         `Tipo de veículo não encontrado para ${veiculo.placa}`,
         HttpStatus.NOT_FOUND,
@@ -371,6 +370,12 @@ export class PassagemService {
   }
 
   private generateUniquePassagemCode(): string {
-    return randomUUID();
+    const bytes = 4;
+    const randomHex = randomBytes(bytes).toString('hex').toUpperCase();
+
+    const part1 = randomHex.substring(0, 4);
+    const part2 = randomHex.substring(4, 8);
+
+    return `${part1}-${part2}`;
   }
 }
