@@ -2,23 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/database/prisma.service';
 
 @Injectable()
-export class VeiculoService {
+export class VeiculoCategoriaService {
   constructor(private prisma: PrismaService) {}
 
-  async existById(veiculoId: number) {
-    const veiculo = await this.prisma.veiculo.findFirst({
+  async existById(veiculoCategoriaId: number) {
+    const categoria = await this.prisma.veiculoCategoria.findFirst({
       where: {
-        id: veiculoId,
+        id: veiculoCategoriaId,
       },
       select: {
         id: true,
       },
     });
 
-    return veiculo != null;
+    return categoria != null;
   }
 
   async getAll() {
-    return await this.prisma.veiculo.findMany();
+    return await this.prisma.veiculoCategoria.findMany();
   }
 }
