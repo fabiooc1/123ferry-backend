@@ -22,7 +22,7 @@ enum PerfilTypes {
 
 model Perfil {
   id       Int         @id @default(autoincrement())
-  nome     PerfilTypes @default(CLIENTE)
+  nome     PerfilTypes
   usuarios Usuario[]
 
   @@map("perfils")
