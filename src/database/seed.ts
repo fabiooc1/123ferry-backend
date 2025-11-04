@@ -60,12 +60,12 @@ const PORTOS = [
 
 const ROTAS = [
   {
-    nome: 'São Luís (Ponta da Espera) -> Alcântara (Cujupe)',
+    nome: 'São Luís para Alcântara',
     origemId: 1,
     destinoId: 2,
   },
   {
-    nome: 'Alcântara (Cujupe) -> São Luís (Ponta da Espera)',
+    nome: 'Alcântara para São Luís',
     origemId: 2,
     destinoId: 1,
   },
