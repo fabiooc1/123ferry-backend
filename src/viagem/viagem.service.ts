@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Prisma } from 'generated/prisma';
 import { PrismaService } from 'src/database/prisma.service';
-import { CreateViagemDto } from './dtos/create-viagem.dto';
 import { FerryService } from 'src/ferry/ferry.service';
 import { RotaService } from 'src/rota/rota.service';
-import { UpdateViagemDto } from './dtos/update-viagem.dto';
+import { CreateViagemDto } from './dtos/create-viagem.dto';
 import { PaginationViagemDto } from './dtos/pagination-viagem.dto';
-import { Prisma } from 'generated/prisma';
+import { UpdateViagemDto } from './dtos/update-viagem.dto';
 
 @Injectable()
 export class ViagemService {
@@ -50,7 +50,12 @@ export class ViagemService {
       },
       include: {
         ferry: true,
-        rota: true,
+        rota: {
+          include: {
+            origem: true,
+            destino: true,
+          },
+        },
       },
     });
 
