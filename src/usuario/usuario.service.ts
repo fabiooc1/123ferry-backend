@@ -8,7 +8,7 @@ import { hash } from 'bcrypt';
 import { PrismaService } from 'src/database/prisma.service';
 import { CreateUsuarioDtoType } from './dto/create-usuario.dto';
 import { UpdateUsuarioDtoType } from './dto/update-usuario.dto';
-import { Prisma } from 'generated/prisma';
+import { Prisma } from 'src/generated/prisma';
 
 @Injectable()
 export class UsuarioService {

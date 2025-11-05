@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { Prisma } from 'generated/prisma';
+import { Prisma } from 'src/generated/prisma';
 import { PrismaService } from 'src/database/prisma.service';
 import { FerryService } from 'src/ferry/ferry.service';
 import { RotaService } from 'src/rota/rota.service';

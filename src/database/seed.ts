@@ -1,6 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { PerfilTypes } from 'generated/prisma';
+import { PerfilTypes } from 'src/generated/prisma';
 
 const VEHICLE_MODELS = [
   {
