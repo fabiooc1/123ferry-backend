@@ -8,6 +8,8 @@ import { ViagemService } from 'src/viagem/viagem.service';
 import { CreatePassagemDto } from './dtos/create-passagem.dto';
 import { PassageiroDto } from './dtos/passageiro.schema';
 import { PassagemVeiculoDto } from './dtos/passagem-veiculo.schema';
+import { Prisma } from 'src/generated/prisma';
+import { PaginatePassagemDto } from './dtos/paginate-passagem.dto';
 
 @Injectable()
 export class PassagemService {
@@ -143,14 +145,12 @@ export class PassagemService {
     }
   }
 
-  async findByCode(userId: number, codigo: string) {
-    const isAdmin = await this.usuarioService.isAdmin(userId);
-
+  async findByCode(codigo: string, userId?: number) {
     const whereClause: { codigo: string; adquiridaPorId?: number } = {
       codigo,
     };
 
-    if (!isAdmin) {
+    if (userId) {
       whereClause.adquiridaPorId = userId;
     }
 
@@ -298,22 +298,42 @@ export class PassagemService {
     });
   }
 
-  async getAll(userId: number, pageSize: number, page: number) {
+  async getAll(dto: PaginatePassagemDto, userId?: number) {
+    const { page, pageSize, status, passageiroNome } = dto;
+
     const skip = (page - 1) * pageSize;
+
+    const where: Prisma.PassagemWhereInput = {};
+
+    if (userId) {
+      where.adquiridaPorId = userId;
+    }
+
+    if (status) {
+      where.status = status;
+    }
+
+    if (passageiroNome) {
+      where.passageiros = {
+        some: {
+          nomeCompleto: {
+            contains: passageiroNome,
+            mode: 'insensitive',
+          },
+        },
+      };
+    }
+
     const [pageData, total] = await Promise.all([
       this.prisma.passagem.findMany({
         take: pageSize,
         skip: skip,
-        where: {
-          adquiridaPorId: userId,
-        },
-        select: {
-          id: true,
-          codigo: true,
+        where: where,
+        include: {
           viagem: {
             select: {
               rota: {
-                select: {
+                include: {
                   origem: true,
                   destino: true,
                 },
@@ -322,15 +342,16 @@ export class PassagemService {
               dataChegada: true,
             },
           },
+          _count: {
+            select: { passageiros: true, veiculos: true },
+          },
         },
         orderBy: {
           reservadaEm: 'asc',
         },
       }),
       this.prisma.passagem.count({
-        where: {
-          adquiridaPorId: userId,
-        },
+        where: where,
       }),
     ]);
 

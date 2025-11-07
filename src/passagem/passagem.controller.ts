@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  DefaultValuePipe,
   Get,
   Param,
   ParseIntPipe,
@@ -19,6 +18,10 @@ import {
 } from './dtos/create-passagem.dto';
 import { type RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 import { AuthGuard } from 'src/auth/auth.guard';
+import {
+  type PaginatePassagemDto,
+  paginatePassagemSchema,
+} from './dtos/paginate-passagem.dto';
 
 @UseGuards(AuthGuard)
 @Controller('passagem')
@@ -40,7 +43,7 @@ export class PassagemController {
     @Param('codigo') codigo: string,
   ) {
     const userId = Number(req.user.sub);
-    return this.passagemService.findByCode(userId, codigo);
+    return this.passagemService.findByCode(codigo, userId);
   }
 
   @Patch(':id/cancelar')
@@ -55,10 +58,10 @@ export class PassagemController {
   @Get()
   async getAll(
     @Request() req: RequestWithUser,
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-    @Query('pageSize', new DefaultValuePipe(6), ParseIntPipe) pageSize: number,
+    @Query(new ZodValidationPipe(paginatePassagemSchema))
+    queryParams: PaginatePassagemDto,
   ) {
     const userId = Number(req.user.sub);
-    return this.passagemService.getAll(userId, pageSize, page);
+    return this.passagemService.getAll(queryParams, userId);
   }
 }
