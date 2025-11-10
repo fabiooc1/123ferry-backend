@@ -1,4 +1,4 @@
-import { PassagemStatus } from '@prisma/client';
+import { PassagemStatus } from 'src/generated/prisma';
 import z from 'zod';
 
 export const paginatePassagemSchema = z.object({
