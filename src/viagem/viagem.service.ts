@@ -144,7 +144,7 @@ export class ViagemService {
         skip: skip,
         where,
         orderBy: {
-          dataPartida: 'asc',
+          dataPartida: 'desc',
         },
         include: {
           ferry: true,

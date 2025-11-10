@@ -330,6 +330,11 @@ export class PassagemService {
         skip: skip,
         where: where,
         include: {
+          adquiridaPor: {
+            select: {
+              nomeCompleto: true,
+            },
+          },
           viagem: {
             select: {
               rota: {
