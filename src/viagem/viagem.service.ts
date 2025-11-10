@@ -133,8 +133,14 @@ export class ViagemService {
     }
 
     if (dataPartida) {
+      const dataInicio = dataPartida;
+
+      const dataFim = new Date(dataInicio.getTime());
+      dataFim.setDate(dataFim.getDate() + 1);
+
       where.dataPartida = {
-        gte: dataPartida,
+        gte: dataInicio,
+        lt: dataFim,
       };
     }
 
