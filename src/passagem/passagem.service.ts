@@ -161,6 +161,14 @@ export class PassagemService {
           veiculos: {
             include: {
               veiculoCategoria: true,
+              motorista: {
+                select: {
+                  id: true,
+                  nomeCompleto: true,
+                  cpf: true,
+                  dataNascimento: true,
+                },
+              },
             },
           },
           passageiros: {
