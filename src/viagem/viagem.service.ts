@@ -150,7 +150,7 @@ export class ViagemService {
         skip: skip,
         where,
         orderBy: {
-          dataPartida: 'desc',
+          dataPartida: paginationViagemDto.dataPartidaOrdem,
         },
         include: {
           ferry: true,
